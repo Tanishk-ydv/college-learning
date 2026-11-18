@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MiniGoogle</title>
+<style>
+:root{--bg:#fff;--fg:#202124;--mut:#5f6368;--line:#dadce0;--card:#f8f9fa;--link:#1a0dab;--url:#188038;--b:#4285f4;--r:#ea4335;--y:#fbbc05;--g:#34a853;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#202124;--fg:#e8eaed;--mut:#9aa0a6;--line:#3c4043;--card:#2d2e31;--link:#8ab4f8;--url:#81c995}}
+:root[data-theme="dark"]{--bg:#202124;--fg:#e8eaed;--mut:#9aa0a6;--line:#3c4043;--card:#2d2e31;--link:#8ab4f8;--url:#81c995}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:Arial,Helvetica,sans-serif}
+main{max-width:1000px;margin:0 auto;padding:24px 16px 60px}
+.logo{font-size:clamp(40px,9vw,72px);font-weight:700;text-align:center;margin:40px 0 18px;letter-spacing:-2px}
+.logo span:nth-child(1){color:var(--b)}.logo span:nth-child(2){color:var(--r)}.logo span:nth-child(3){color:var(--y)}.logo span:nth-child(4){color:var(--b)}.logo span:nth-child(5){color:var(--g)}.logo span:nth-child(6){color:var(--r)}
+.logo small{font-size:.35em;color:var(--mut);letter-spacing:0;font-weight:400;margin-left:4px}
+.bar{display:flex;max-width:600px;margin:0 auto;border:1px solid var(--line);border-radius:24px;padding:4px 6px 4px 18px;background:var(--bg)}
+.bar:focus-within{box-shadow:0 1px 6px rgba(32,33,36,.28)}
+.bar input{flex:1;border:0;outline:0;background:transparent;color:var(--fg);font-size:16px;min-width:0;padding:10px 0}
+.bar button{border:0;background:var(--b);color:#fff;border-radius:20px;padding:0 18px;font-size:14px;cursor:pointer}
+.hint{text-align:center;color:var(--mut);font-size:13px;margin:12px 0 0}
+.hint a{color:var(--link);cursor:pointer;margin:0 4px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:32px}
+@media(max-width:760px){.cols{grid-template-columns:1fr}}
+.col{border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--card)}
+.col h2{margin:0 0 4px;font-size:18px}
+.col p.d{margin:0 0 14px;color:var(--mut);font-size:13px;line-height:1.4}
+.res{padding:12px 0;border-top:1px solid var(--line)}
+.res .u{color:var(--url);font-size:13px}
+.res .t{color:var(--link);font-size:18px;margin:2px 0}
+.res .s{color:var(--mut);font-size:13px;line-height:1.4}
+.res .s mark{background:var(--y);color:#202124;padding:0 1px}
+.badge{display:inline-block;margin-top:6px;font-size:12px;padding:2px 8px;border-radius:10px;border:1px solid var(--line);color:var(--fg);background:var(--bg)}
+.rk{float:right;font-weight:700;color:var(--mut)}
+.empty{color:var(--mut);font-size:14px;padding:12px 0}
+.col.old{background:rgba(234,67,53,.08);border-color:rgba(234,67,53,.55);border-top:4px solid #ea4335}
+.col.old h2,.col.old .rk{color:#ea4335}
+.col.old .t{color:#d93025}
+.col.old .res{border-top-color:rgba(234,67,53,.3)}
+.col.old .badge{border-color:#ea4335;color:#d93025;background:rgba(234,67,53,.1)}
+.col.pr{background:rgba(52,168,83,.08);border-color:rgba(52,168,83,.55);border-top:4px solid #34a853}
+.col.pr h2,.col.pr .rk{color:#34a853}
+.col.pr .t{color:#188038}
+.col.pr .res{border-top-color:rgba(52,168,83,.3)}
+.col.pr .badge{border-color:#34a853;color:#188038;background:rgba(52,168,83,.1)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .col.old .t{color:#f28b82}:root:not([data-theme="light"]) .col.old .badge{color:#f28b82}:root:not([data-theme="light"]) .col.pr .t{color:#81c995}:root:not([data-theme="light"]) .col.pr .badge{color:#81c995}}
+.how{margin-top:28px;font-size:13px;color:var(--mut);line-height:1.5}
+</style>
+</head>
+<body>
+<main>
+<div class="logo" aria-label="MiniGoogle"><span>M</span><span>i</span><span>n</span><span>i</span><span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span></div>
+<form class="bar" id="f" role="search"><input id="q" type="search" placeholder="Search the mini web" autocomplete="off" aria-label="Search"><button type="submit">Search</button></form>
+<p class="hint">Try: <a data-q="pizza">pizza</a><a data-q="food">food</a><a data-q="chai">chai</a><a data-q="pune">pune</a></p>
+<div id="out"></div>
+<p class="how">Both lists use the same matching sites. Old way sorts by how many times the word appears in the page text. PageRank way sorts by how many sites link to the page, weighted by how important those linking sites are.</p>
+</main>
+<script>
+const SITES=[
+[1,"pune-food-guide.com","Where to eat in Pune - vada pav and biryani and pizza",[2]],
+[2,"best-pizza-pune.com","Fresh wood-fired pizza made daily - try our cheese pizza",[1,3]],
+[3,"college-canteen-blog.com","Student reviews of canteen food and chai and Friday pizza",[2,4]],
+[4,"pizza-recipes-home.com","Make pizza at home - pizza dough and pizza sauce",[2,5]],
+[5,"cheap-eats-pune.com","Good food under 100 rupees - misal and dosa and pizza slices",[2]],
+[6,"pizza-pizza-pizza.com","pizza pizza pizza pizza pizza pizza pizza pizza pizza pizza",[1]]
+].map(s=>({id:s[0],url:s[1],text:s[2],out:s[3]}));
+const byId=Object.fromEntries(SITES.map(s=>[s.id,s]));
+// inbound links
+SITES.forEach(s=>s.inl=[]);
+SITES.forEach(s=>s.out.forEach(o=>byId[o].inl.push(s.id)));
+// PageRank
+const N=SITES.length,d=0.85;let pr={};SITES.forEach(s=>pr[s.id]=1/N);
+for(let i=0;i<100;i++){const n={};SITES.forEach(s=>{let sum=0;s.inl.forEach(j=>sum+=pr[j]/byId[j].out.length);n[s.id]=(1-d)/N+d*sum});pr=n}
+const esc=t=>t.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const rx=w=>new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"gi");
+function hl(t,w){return esc(t).replace(rx(esc(w)),m=>"<mark>"+m+"</mark>")}
+function card(s,w,i,badge){return `<div class="res"><span class="rk">#${i+1}</span><div class="u">${s.url}</div><div class="t">${s.url.split(".")[0].replace(/-/g," ")}</div><div class="s">${hl(s.text,w)}</div><span class="badge">${badge}</span></div>`}
+function col(cls,title,desc,html){return `<section class="col ${cls}"><h2>${title}</h2><p class="d">${desc}</p>${html||'<div class="empty">No pages contain that word.</div>'}</section>`}
+function search(w){
+ w=w.trim();if(!w)return;
+ const hits=SITES.map(s=>({s,c:(s.text.match(rx(w))||[]).length})).filter(x=>x.c>0);
+ const old=[...hits].sort((a,b)=>b.c-a.c||a.s.id-b.s.id);
+ const pgr=[...hits].sort((a,b)=>pr[b.s.id]-pr[a.s.id]);
+ document.getElementById("out").innerHTML=`<div class="cols">`+
+  col("old","Old way","Ranked by how many times “"+esc(w)+"” appears on the page.",old.map((x,i)=>card(x.s,w,i,x.c+" match"+(x.c>1?"es":""))).join(""))+
+  col("pr","PageRank way","Ranked by how often other sites link to the page, and how important those sites are.",pgr.map((x,i)=>card(x.s,w,i,x.s.inl.length+" inbound link"+(x.s.inl.length!==1?"s":"")+" · score "+pr[x.s.id].toFixed(3))).join(""))+`</div>`;
+}
+const q=document.getElementById("q");
+document.getElementById("f").addEventListener("submit",e=>{e.preventDefault();search(q.value)});
+document.querySelectorAll("[data-q]").forEach(a=>a.addEventListener("click",()=>{q.value=a.dataset.q;search(a.dataset.q)}));
+</script>
+</body>
+</html>
